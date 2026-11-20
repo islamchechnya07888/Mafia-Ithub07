@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mafia ITHub</title>
+<style>
+:root{--green:#2fb35d;--navy:#0b2a5b;--red:#e5484d;--orange:#f0883e;--ink:#eaf1ff;--mut:#9fb2d6;--card:rgba(255,255,255,.06);--line:rgba(255,255,255,.12)}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);min-height:100vh;background:linear-gradient(160deg,var(--b1,#12306b),var(--b2,#0b1d44));transition:background .8s}
+body.night{--b1:#070b1c;--b2:#02040c}
+body.day{--b1:#16397c;--b2:#0b1d44}
+button{font:inherit;cursor:pointer}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;letter-spacing:.5px}
+.logo{width:34px;height:34px;border:5px solid #fff;border-radius:6px;position:relative}
+.logo:after{content:"";position:absolute;inset:6px;background:var(--green);border-radius:2px}
+.brand small{color:var(--green);font-weight:700}
+.btn{background:var(--green);color:#04210f;border:0;border-radius:10px;padding:10px 16px;font-weight:700}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.red{background:var(--red);color:#fff}
+.btn.sm{padding:6px 12px;font-size:14px}
+.start{max-width:560px;margin:6vh auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px}
+.start h1{margin:0 0 6px;font-size:34px}
+.start p{color:var(--mut);margin:0 0 20px}
+.field{margin-bottom:16px}
+.field label{display:block;margin-bottom:6px;color:var(--mut);font-size:14px}
+.field input[type=text]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);font-size:16px}
+.field input[type=range]{width:100%;accent-color:var(--green)}
+.main{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
+.banner{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:12px}
+.banner .ico{font-size:30px}
+.banner b{font-size:18px}
+.banner span{color:var(--mut);font-size:14px;display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pl{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center;position:relative;transition:.15s}
+.av{width:52px;height:52px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff}
+.pl .nm{font-weight:700}
+.pl .jb{font-size:12px;color:var(--mut)}
+.pl .rl{margin-top:8px;font-size:13px;padding:3px 8px;border-radius:20px;display:inline-block;background:rgba(255,255,255,.08)}
+.rl.town{background:rgba(47,179,93,.2);color:#8be5ab}
+.rl.mafia{background:rgba(229,72,77,.22);color:#ff9a9d}
+.rl.solo{background:rgba(240,136,62,.22);color:#ffc08a}
+.pl.me{border-color:var(--green)}
+.pl .tag{position:absolute;top:6px;right:8px;font-size:11px;background:var(--green);color:#04210f;border-radius:8px;padding:1px 6px;font-weight:800}
+.pl.dead{opacity:.45;filter:grayscale(1)}
+.pl.dead .nm{text-decoration:line-through}
+.pl.sel{cursor:pointer;border-color:var(--green);box-shadow:0 0 0 2px rgba(47,179,93,.35),0 0 18px rgba(47,179,93,.3)}
+.pl.sel:hover{transform:translateY(-3px)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.panel h3{margin:0 0 6px;font-size:18px}
+.panel p{margin:0 0 12px;color:var(--mut);font-size:14px;line-height:1.45}
+.panel .row{display:flex;gap:8px;flex-wrap:wrap}
+.panel select{padding:8px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--ink);border:1px solid var(--line)}
+.log{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:14px;padding:12px;height:360px;overflow:auto}
+.ln{margin:0 0 8px;font-size:14px;line-height:1.45;animation:in .3s}
+@keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.ln.sys{color:var(--mut);text-align:center;border-top:1px dashed var(--line);padding-top:8px;margin-top:10px}
+.ln.death{color:#ff9a9d}
+.ln.good{color:#8be5ab}
+.ln.private{background:rgba(240,200,62,.12);border-left:3px solid #f0c83e;padding:6px 10px;border-radius:6px}
+.ln b{color:#fff}
+.ln.chat b{color:var(--green)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.mbox{background:#0f2250;border:1px solid var(--line);border-radius:18px;max-width:640px;width:100%;max-height:88vh;overflow:auto;padding:24px}
+.mbox h2{margin:0 0 10px}
+.rrow{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.rrow .e{font-size:28px}
+.rrow p{margin:2px 0 0;color:var(--mut);font-size:14px}
+.big{font-size:60px;text-align:center}
+.seg{display:flex;gap:6px;margin-bottom:18px;background:rgba(0,0,0,.25);padding:4px;border-radius:12px}
+.seg button{flex:1;padding:10px 6px;border:0;border-radius:9px;background:transparent;color:var(--mut);font-weight:700}
+.seg button.on{background:var(--green);color:#04210f}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.names input{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);font-size:15px}
+.cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin:14px 0}
+.cell{aspect-ratio:1/1;border-radius:16px;border:2px solid var(--green);background:linear-gradient(145deg,rgba(47,179,93,.22),rgba(11,42,91,.6));color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:800;font-size:17px;padding:8px;word-break:break-word}
+.cell .q{font-size:34px}
+.cell.seen{opacity:.4;border-color:var(--line);background:var(--card)}
+.modal.solid{background:#050914}
+.pickgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.pickgrid button{padding:14px 8px;border-radius:12px;border:1px solid var(--green);background:rgba(47,179,93,.15);color:var(--ink);font-weight:700;font-size:16px}
+.pickgrid button:active{background:var(--green);color:#04210f}
+.final{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;margin:12px 0;font-size:14px}
+.final div{background:var(--card);border-radius:8px;padding:6px 10px}
+.final .d{opacity:.5}
+</style>
+</head>
+<body class="day">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo"></div><div>MAFIA <small>ITHub</small></div></div>
+    <div class="row" style="display:flex;gap:8px">
+      <button class="btn ghost sm" id="rulesBtn">📖 Роли и правила</button>
+      <button class="btn ghost sm" id="restartBtn" style="display:none">↻ Новая игра</button>
+    </div>
+  </header>
+  <div id="app"></div>
+</div>
+<div id="modal"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+const ROLES={
+  civ:{name:'Мирный житель',emoji:'🧑‍💻',team:'town',desc:'Ночью спит. Днём ищет мафию и голосует. Его оружие — внимание и логика.'},
+  mafia:{name:'Мафия',emoji:'🕶️',team:'mafia',desc:'Знает своих. Ночью команда выбирает жертву. Днём прикидывается мирным.'},
+  don:{name:'Дон мафии',emoji:'🎩',team:'mafia',desc:'Глава мафии: делает выстрел за команду и каждую ночь ищет комиссара. Комиссар считает Дона мирным.'},
+  doctor:{name:'Доктор',emoji:'🩺',team:'town',desc:'Каждую ночь лечит одного игрока (себя тоже). Нельзя лечить одного и того же две ночи подряд.'},
+  sheriff:{name:'Комиссар',emoji:'🕵️',team:'town',desc:'Каждую ночь проверяет игрока: мафия или нет. Дон при проверке выглядит мирным.'},
+  maniac:{name:'Маньяк',emoji:'🔪',team:'solo',desc:'Играет сам за себя. Каждую ночь убивает одного игрока. Побеждает, если останется один на один с мирным.'},
+  mistress:{name:'Любовница',emoji:'💃',team:'town',desc:'Каждую ночь отвлекает одного игрока: его ночное действие не срабатывает. Одного и того же две ночи подряд нельзя.'}
+};
+const TEAMS={town:'Мирные жители',mafia:'Мафия',solo:'Маньяк'};
+const BOTS=[['Алина','Frontend'],['Дима','Backend'],['Кирилл','DevOps'],['Маша','QA'],['Артём','Data Science'],['Соня','UX/UI'],['Игорь','Mobile'],['Лера','Project Manager'],['Макс','Cyber Security'],['Вика','Java'],['Тимур','Python'],['Оля','Аналитик']];
+const COLORS=['#2b6cb0','#2fb35d','#b7791f','#9f7aea','#d53f8c','#319795','#dd6b20','#4c51bf','#c53030','#2c7a7b','#718096','#38a169'];
+
+const isMafia=p=>ROLES[p.role].team==='mafia';
+let G=null,runId=0;
+
+function buildRoles(n){
+  const r=['don'];
+  for(let i=0;i<Math.floor((n+1)/4)-1;i++)r.push('mafia');
+  r.push('doctor','sheriff');
+  if(n>=8)r.push('maniac');
+  if(n>=10)r.push('mistress');
+  while(r.length<n)r.push('civ');
+  return shuffle(r);
+}
+
+function newGame(name,n,reveal){
+  const roles=buildRoles(n);
+  const bots=shuffle(BOTS).slice(0,n-1);
+  const cols=shuffle(COLORS);
+  const players=[{id:0,name:name||'Вы',job:'Игрок',role:roles[0],alive:true,human:true,susp:{},known:{},claimed:false,color:cols[0]}];
+  bots.forEach((b,i)=>players.push({id:i+1,name:b[0],job:b[1],role:roles[i+1],alive:true,human:false,susp:{},known:{},claimed:false,color:cols[i+1]}));
+  G={players,day:0,phase:'start',reveal,lastHeal:null,lastBlock:null,claims:[],sheriffFound:null,select:null,over:false,winner:null};
+}
+
+/* ---------- UI ---------- */
+function log(kind,html){
+  const el=$('#log');if(!el)return;
+  const d=document.createElement('div');d.className='ln '+kind;d.innerHTML=html;el.appendChild(d);el.scrollTop=el.scrollHeight;
+}
+function say(p,text){log('chat','<b>'+p.name+'</b> <span style="color:var(--mut)">('+p.job+')</span>: '+text)}
+
+function visibleRole(p){
+  const me=G.players[0];
+  if(G.local)return G.over||(!p.alive&&G.reveal);
+  if(G.over||!me.alive||p===me)return true;
+  if(!p.alive&&G.reveal)return true;
+  if(isMafia(me)&&isMafia(p))return true;
+  return false;
+}
+function renderPlayers(){
+  const me=G.players[0];
+  $('#grid').innerHTML=G.players.map(p=>{
+    const r=ROLES[p.role];
+    const sel=G.select&&p.alive&&G.select.filter(p);
+    const role=visibleRole(p)?`<div class="rl ${r.team}">${r.emoji} ${r.name}</div>`:`<div class="rl">❓ Роль скрыта</div>`;
+    return `<div class="pl ${p.alive?'':'dead'} ${p===me&&!G.local?'me':''} ${sel?'sel':''}" data-id="${p.id}">
+      ${p===me&&!G.local?'<span class="tag">ВЫ</span>':''}
+      <div class="av" style="background:${p.color}">${p.name[0]}</div>
+      <div class="nm">${p.name}${p.alive?'':' 💀'}</div><div class="jb">${p.job}</div>${role}</div>`;
+  }).join('');
+  document.querySelectorAll('.pl.sel').forEach(el=>el.onclick=()=>{
+    const s=G.select;if(!s)return;G.select=null;renderPlayers();s.res(+el.dataset.id);
+  });
+}
+function setBanner(ico,title,sub){$('#banner').innerHTML=`<div class="ico">${ico}</div><div><b>${title}</b><span>${sub}</span></div>`}
+function setPanel(title,text,buttons=[],extra=''){
+  $('#panel').innerHTML=`<h3>${title}</h3><p>${text}</p>${extra}<div class="row">${buttons.map((b,i)=>`<button class="btn ${b.cls||''}" data-i="${i}">${b.label}</button>`).join('')}</div>`;
+  $('#panel').querySelectorAll('button').forEach(el=>el.onclick=()=>buttons[+el.dataset.i].fn());
+}
+function askSelect(title,filter,{skip=null,hint='Нажмите на карточку игрока.'}={}){
+  return new Promise(res=>{
+    G.select={filter,res};
+    const btns=skip?[{label:skip,cls:'ghost',fn:()=>{G.select=null;renderPlayers();res(null)}}]:[];
+    setPanel(title,hint,btns);renderPlayers();
+  });
+}
+function waitButton(title,text,label){
+  return new Promise(res=>setPanel(title,text,[{label,fn:()=>res()}]));
+}
+
+/* ---------- screens ---------- */
+let startMode='bots';
+function showStart(){
+  runId++;G=null;document.body.className='day';closeModal();
+  $('#restartBtn').style.display='none';
+  renderStart();
+}
+function drawNames(){
+  const n=+$('#nr').value;
+  const old=[...document.querySelectorAll('.nmi')].map(i=>i.value);
+  $('#names').innerHTML=Array.from({length:n},(_,i)=>`<input class="nmi" maxlength="14" placeholder="Игрок ${i+1}" value="${(old[i]||'').replace(/"/g,'')}">`).join('');
+}
+function renderStart(){
+  const bots=startMode==='bots';
+  $('#app').innerHTML=`<div class="start">
+    <h1>Mafia <span style="color:var(--green)">ITHub</span></h1>
+    <p>Классическая «Мафия» в городе ITHub. Играйте против ботов или с друзьями на одном телефоне.</p>
+    <div class="seg"><button data-m="bots" class="${bots?'on':''}">🤖 Против ботов</button><button data-m="local" class="${bots?'':'on'}">👥 С друзьями</button></div>
+    ${bots?`<div class="field"><label>Ваше имя</label><input type="text" id="nm" maxlength="16" placeholder="Например, Студент 307-4"></div>`
+          :`<p style="margin-top:-6px">Один телефон на всех. Каждый по очереди открывает свою ячейку и узнаёт роль, ночью телефон передаётся тем, кто просыпается.</p>`}
+    <div class="field"><label>Количество игроков: <b id="nv">${bots?9:7}</b></label><input type="range" id="nr" min="${bots?6:5}" max="${bots?12:15}" value="${bots?9:7}"></div>
+    ${bots?'':'<div class="field"><label>Имена игроков (можно оставить пустыми)</label><div class="names" id="names"></div></div>'}
+    <div class="field"><label><input type="checkbox" id="rv" checked> Раскрывать роль выбывшего игрока</label></div>
+    <button class="btn" id="go" style="width:100%;font-size:17px">▶ ${bots?'Начать игру':'Раздать роли'}</button>
+  </div>`;
+  document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{startMode=b.dataset.m;renderStart()});
+  $('#nr').oninput=e=>{$('#nv').textContent=e.target.value;if(!bots)drawNames()};
+  if(!bots)drawNames();
+  $('#go').onclick=()=>{
+    if(bots){newGame($('#nm').value.trim(),+$('#nr').value,$('#rv').checked);showGame()}
+    else{
+      const raw=[...document.querySelectorAll('.nmi')].map((i,k)=>i.value.trim()||('Игрок '+(k+1)));
+      const used={},names=raw.map(n=>{used[n]=(used[n]||0)+1;return used[n]>1?n+' '+used[n]:n});
+      newLocalGame(names,$('#rv').checked);showLocalDeal();
+    }
+  };
+}
+function showGame(){
+  runId++;const my=runId;
+  $('#restartBtn').style.display='';
+  $('#app').innerHTML=`<div class="main">
+    <div><div class="banner" id="banner"></div><div class="grid" id="grid"></div></div>
+    <div><div class="panel" id="panel"></div><div class="log" id="log"></div></div></div>`;
+  renderPlayers();
+  const me=G.players[0],r=ROLES[me.role];
+  const mates=isMafia(me)?'<br><br>Ваша команда: '+G.players.filter(p=>isMafia(p)&&p!==me).map(p=>p.name+' ('+ROLES[p.role].name+')').join(', '):'';
+  openModal(`<div class="big">${r.emoji}</div><h2 style="text-align:center">Ваша роль: ${r.name}</h2>
+    <p style="color:var(--mut);text-align:center">${r.desc}${mates}</p>
+    <div style="text-align:center;margin-top:16px"><button class="btn" id="mok">Понятно, начинаем</button></div>`);
+  $('#mok').onclick=()=>{closeModal();log('sys','Игра началась. Игроков: '+G.players.length+'. Мафия: '+G.players.filter(isMafia).length+'.');night(my)};
+}
+function openModal(h,solid){$('#modal').innerHTML=`<div class="modal ${solid?'solid':''}"><div class="mbox">${h}</div></div>`}
+function closeModal(){$('#modal').innerHTML=''}
+function showRules(){
+  openModal(`<h2>Правила и роли</h2>
+  <p style="color:var(--mut)"><b>Два режима:</b> против ботов или с друзьями на одном телефоне (каждый открывает свою ячейку, ночью телефон передаётся по кругу).<br><br>Игра делится на ночи и дни. Ночью мафия и особые роли действуют тайно. Днём все обсуждают и голосуют, кого выгнать из города.</p>
+  ${Object.values(ROLES).map(r=>`<div class="rrow"><div class="e">${r.emoji}</div><div><b>${r.name}</b> <span style="color:var(--mut)">· ${TEAMS[r.team]}</span><p>${r.desc}</p></div></div>`).join('')}
+  <div class="rrow"><div class="e">🏆</div><div><b>Победа</b><p>Мирные — если выгнаны вся мафия и маньяк. Мафия — если её число не меньше числа остальных. Маньяк — если остался один на один с жителем.</p></div></div>
+  <div style="text-align:right;margin-top:14px"><button class="btn" id="mcl">Закрыть</button></div>`);
+  $('#mcl').onclick=closeModal;
+}
+
+/* ---------- night ---------- */
+function humanSteps(me){
+  const al=p=>p.alive;
+  switch(me.role){
+    case 'don':return [
+      {key:'kill',title:'🎩 Выберите жертву мафии',filter:p=>al(p)&&!isMafia(p)},
+      {key:'search',title:'🎩 Найдите комиссара: кого проверить?',filter:p=>al(p)&&!isMafia(p)}];
+    case 'mafia':return [{key:'kill',title:'🕶️ Выберите жертву мафии',filter:p=>al(p)&&!isMafia(p)}];
+    case 'doctor':return [{key:'heal',title:'🩺 Кого лечить этой ночью?',filter:p=>al(p)&&p.id!==G.lastHeal,hint:G.lastHeal!=null?'Нельзя лечить того же, что и прошлой ночью.':undefined}];
+    case 'sheriff':return [{key:'check',title:'🕵️ Кого проверить?',filter:p=>al(p)&&p!==me}];
+    case 'maniac':return [{key:'maniac',title:'🔪 Кого убить?',filter:p=>al(p)&&p!==me}];
+    case 'mistress':return [{key:'block',title:'💃 Кого отвлечь этой ночью?',filter:p=>al(p)&&p!==me&&p.id!==G.lastBlock}];
+  }
+  return [];
+}
+async function night(my){
+  if(my!==runId)return;
+  G.day++;G.phase='night';document.body.className='night';
+  setBanner('🌙','Ночь '+G.day,'Город засыпает. Просыпается мафия...');
+  log('sys','🌙 Ночь '+G.day);
+  const me=G.players[0],acts={};
+  if(me.alive){
+    const steps=humanSteps(me);
+    if(steps.length){
+      for(const s of steps){
+        const id=await askSelect(s.title,s.filter,{hint:s.hint});
+        if(my!==runId)return;
+        acts[s.key]=id;
+      }
+      setPanel('Вы сделали выбор','Ждём, пока остальные завершат ночные действия...');
+      await sleep(900);
+    }else{
+      await waitButton('😴 Вы спите','Вы мирный житель и ночью ничего не делаете. Остаётся слушать, что происходит в городе...','Дождаться утра');
+    }
+  }else{
+    await waitButton('👻 Вы выбыли','Вы наблюдаете за игрой и видите все роли.','Продолжить ▶');
+  }
+  if(my!==runId)return;
+  resolveNight(acts,my);
+}
+const alive=()=>G.players.filter(p=>p.alive);
+const byRole=r=>alive().find(p=>p.role===r);
+
+function resolveNight(acts,my){
+  const al=alive(),me=G.players[0];
+  const mafs=al.filter(isMafia),don=byRole('don');
+  const shooter=don||mafs[0];
+  const doc=byRole('doctor'),sher=byRole('sheriff'),man=byRole('maniac'),mis=byRole('mistress');
+  const non=al.filter(p=>!isMafia(p));
+  /* bots decide */
+  if(acts.kill===undefined&&mafs.length&&!(mafs.includes(me)&&me.alive)){
+    let t=null;
+    if(G.sheriffFound!=null){const s=G.players[G.sheriffFound];if(s.alive)t=s}
+    if(!t){const cl=G.claims.filter(c=>!c.fake).map(c=>G.players[c.by]).filter(p=>p.alive&&!isMafia(p));if(cl.length&&Math.random()<.6)t=rnd(cl)}
+    acts.kill=(t||rnd(non)||{}).id;
+  }
+  if(acts.search===undefined&&don&&!don.human&&G.sheriffFound==null){acts.search=(rnd(non.filter(p=>p.id!==don.id))||{}).id}
+  if(acts.heal===undefined&&doc&&!doc.human)acts.heal=rnd(al.filter(p=>p.id!==G.lastHeal)).id;
+  if(acts.check===undefined&&sher&&!sher.human){const c=al.filter(p=>p!==sher&&sher.known[p.id]===undefined);if(c.length)acts.check=rnd(c).id}
+  if(acts.maniac===undefined&&man&&!man.human)acts.maniac=rnd(al.filter(p=>p!==man)).id;
+  if(acts.block===undefined&&mis&&!mis.human)acts.block=rnd(al.filter(p=>p!==mis&&p.id!==G.lastBlock)).id;
+
+  const blocked=(mis&&acts.block!=null)?acts.block:null;
+  const P=id=>G.players[id];
+  const isBlocked=p=>p&&p.id===blocked;
+  const priv=(p,t)=>{if(p&&p.human)log('private',t)};
+
+  if(mis&&blocked!=null)priv(mis,'💃 Вы отвлекли игрока <b>'+P(blocked).name+'</b>.');
+  if(!G.local&&me.alive&&blocked===0)log('private','💋 Ночью вас отвлекла любовница. Ваше действие не сработало!');
+
+  /* checks */
+  if(sher&&!isBlocked(sher)&&acts.check!=null){
+    const t=P(acts.check),m=isMafia(t)&&t.role!=='don';
+    sher.known[t.id]=m;
+    priv(sher,'🕵️ Проверка: <b>'+t.name+'</b> — '+(m?'<b style="color:#ff9a9d">МАФИЯ</b>':'не мафия')+'.');
+  }
+  if(don&&!isBlocked(don)&&acts.search!=null){
+    const t=P(acts.search),f=t.role==='sheriff';
+    if(f)G.sheriffFound=t.id;
+    G.players.filter(p=>p.human&&p.alive&&isMafia(p)).forEach(()=>log('private',f?'🎩 Дон нашёл комиссара: <b>'+t.name+'</b>!':'🎩 Дон проверил <b>'+t.name+'</b> — это не комиссар.'));
+  }
+  /* kills */
+  const victims=[];
+  if(shooter&&!isBlocked(shooter)&&acts.kill!=null)victims.push(acts.kill);
+  if(man&&!isBlocked(man)&&acts.maniac!=null)victims.push(acts.maniac);
+  const heal=(doc&&!isBlocked(doc)&&acts.heal!=null)?acts.heal:null;
+  if(doc)priv(doc,heal!=null?'🩺 Вы лечили игрока <b>'+P(acts.heal).name+'</b>.':'🩺 Лечение не состоялось.');
+  G.lastHeal=doc&&acts.heal!=null?acts.heal:null;
+  G.lastBlock=mis&&acts.block!=null?acts.block:null;
+
+  const dead=[...new Set(victims)].filter(id=>id!==heal).map(id=>P(id));
+  G.phase='day';document.body.className='day';
+  setBanner('☀️','День '+G.day,'Город просыпается.');
+  log('sys','☀️ День '+G.day);
+  if(!dead.length)log('good','Эта ночь прошла без жертв. Все живы!');
+  dead.forEach(p=>{p.alive=false;log('death','💀 Ночью был убит <b>'+p.name+'</b>'+(G.reveal?' — '+ROLES[p.role].emoji+' '+ROLES[p.role].name:'')+'.')});
+  renderPlayers();
+  if(endIfWon())return;
+  if(G.local)dayLocal(my);else day(my);
+}
+
+/* ---------- win ---------- */
+function checkWin(){
+  const al=alive(),maf=al.filter(isMafia).length,man=al.filter(p=>p.role==='maniac').length;
+  if(maf===0&&man===0)return 'town';
+  if(maf>0&&maf>=al.length-maf)return 'mafia';
+  if(maf===0&&man>0&&al.length<=2)return 'solo';
+  return null;
+}
+function endIfWon(){
+  const w=checkWin();if(!w)return false;
+  G.over=true;G.winner=w;G.select=null;renderPlayers();
+  const me=G.players[0],mt=ROLES[me.role].team,won=G.local?true:mt===w;
+  const names={town:'Мирные жители',mafia:'Мафия',solo:'Маньяк'};
+  setBanner(won?'🏆':'💀','Игра окончена','Победили: '+names[w]);
+  setPanel('Победили: '+names[w],G.local?'Поздравляем победителей! 🎉':won?'Вы победили! 🎉':'Вы проиграли. В следующий раз повезёт больше.',[{label:'Играть снова',fn:showStart}]);
+  openModal(`<div class="big">${won?'🏆':'😵'}</div>
+    <h2 style="text-align:center">Победили: ${names[w]}</h2>
+    <p style="text-align:center;color:var(--mut)">${G.local?'Поздравляем победителей!':won?'Поздравляем, вы в команде победителей!':'Ваша команда проиграла.'}</p>
+    <div class="final">${G.players.map(p=>`<div class="${p.alive?'':'d'}">${ROLES[p.role].emoji} <b>${p.name}</b> — ${ROLES[p.role].name}</div>`).join('')}</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:10px"><button class="btn" id="again">▶ Играть снова</button><button class="btn ghost" id="cl">Закрыть</button></div>`);
+  $('#again').onclick=()=>{closeModal();showStart()};$('#cl').onclick=closeModal;
+  return true;
+}
+
+/* ---------- bot AI ---------- */
+function suspect(p){
+  const c=alive().filter(x=>x!==p);
+  if(isMafia(p)){const n=c.filter(x=>!isMafia(x));return n.length?rnd(n):null}
+  let best=null,bs=-1e9;
+  c.forEach(x=>{
+    let s=(p.susp[x.id]||0)+Math.random()*1.2;
+    if(p.known[x.id]===true)s+=10;
+    if(p.known[x.id]===false)s-=6;
+    if(p.role==='maniac'&&false)s=0;
+    if(s>bs){bs=s;best=x}
+  });
+  return best;
+}
+const ACC=['Мне кажется, <b>{t}</b> ведёт себя подозрительно. Слишком много молчит.','<b>{t}</b>, у меня к тебе вопросы. Где ты был ночью?','Голосую против <b>{t}</b>: в его логике явный баг.','Что-то <b>{t}</b> нервничает. Похоже на мафию.','По-моему, <b>{t}</b> пытается скрыть свою роль. Проверим?','У <b>{t}</b> слишком много отговорок. Подозрительно!'];
+const NEU=['Я мирный, честное слово. Проверьте мой код!','Давайте без паники, надо анализировать факты.','Предлагаю не спешить с голосованием.','Пока мало информации. Слушаю всех внимательно.','Не надо кидаться на первого встречного!'];
+const DEF=['Это ошибка! Я мирный, у меня даже коммитов больше всех.','Почему я? Вы ищете не там!','Докажите хоть что-то. Просто так обвинять нельзя.','Я не мафия! Давайте голосовать по фактам.'];
+
+function botSpeak(p){
+  const al=alive().filter(x=>x!==p);
+  if(p.role==='sheriff'&&!p.claimed){
+    const m=al.find(x=>p.known[x.id]===true);
+    if(m){p.claimed=true;say(p,'Я комиссар! Ночью я проверил <b>'+m.name+'</b> — это мафия. Голосуем за него!');G.claims.push({by:p.id,target:m.id});
+      G.players.forEach(q=>{if(!q.human&&!isMafia(q))q.susp[m.id]=(q.susp[m.id]||0)+4});return}
+  }
+  if(isMafia(p)&&!p.claimed&&Math.random()<.12&&!G.claims.some(c=>!c.fake)){
+    const t=rnd(al.filter(x=>!isMafia(x)));
+    if(t){p.claimed=true;say(p,'Я комиссар! Я проверил <b>'+t.name+'</b> — он мафия. Не верьте ему!');G.claims.push({by:p.id,target:t.id,fake:true});
+      G.players.forEach(q=>{if(!q.human&&!isMafia(q))q.susp[t.id]=(q.susp[t.id]||0)+1.5});return}
+  }
+  const t=suspect(p);
+  if(t&&Math.random()<.8){
+    say(p,rnd(ACC).replace('{t}',t.name));
+    G.players.forEach(q=>{if(!q.human&&q!==p&&!isMafia(q))q.susp[t.id]=(q.susp[t.id]||0)+.4});
+  }else say(p,rnd(NEU));
+}
+
+/* ---------- day ---------- */
+async function day(my){
+  const me=G.players[0];
+  /* интуиция честных ботов */
+  alive().forEach(q=>{
+    if(q.human||isMafia(q)||Math.random()>.45)return;
+    const m=alive().filter(x=>isMafia(x));
+    if(m.length){const t=rnd(m);q.susp[t.id]=(q.susp[t.id]||0)+2.2}
+  });
+  const speakers=shuffle(alive().filter(p=>!p.human));
+  setPanel('💬 Обсуждение','Жители высказываются...');
+  for(const p of speakers){
+    await sleep(750);if(my!==runId)return;
+    if(!p.alive)continue;botSpeak(p);
+  }
+  await sleep(300);if(my!==runId)return;
+  if(me.alive){
+    let chosen=null;
+    await new Promise(res=>{
+      const opts=alive().filter(p=>p!==me).map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+      const claimBtn=(me.role==='sheriff'&&Object.values(me.known).some(v=>v===true))?[{label:'🕵️ Объявить результат проверки',cls:'ghost',fn:()=>declareSheriff(my)}]:[];
+      setPanel('💬 Ваше слово','Обвините игрока или переходите к голосованию. Боты реагируют на ваши слова.',[
+        {label:'☝️ Обвинить',fn:()=>{const t=G.players[+$('#acc').value];accuse(t,my)}},
+        ...claimBtn,
+        {label:'🗳️ К голосованию',cls:'red',fn:()=>res()}
+      ],`<div class="row" style="margin-bottom:10px"><select id="acc">${opts}</select></div>`);
+    });
+  }else{
+    await waitButton('👻 Вы выбыли','Вы наблюдаете. Все роли открыты.','К голосованию ▶');
+  }
+  if(my!==runId)return;
+  vote(my);
+}
+async function accuse(t,my){
+  const me=G.players[0];
+  log('chat','<b>'+me.name+'</b> (Вы): Подозреваю <b>'+t.name+'</b>!');
+  G.players.forEach(q=>{if(!q.human&&!isMafia(q)&&q!==t)q.susp[t.id]=(q.susp[t.id]||0)+(Math.random()<.6?1:.3)});
+  if(!t.human){await sleep(600);if(my!==runId)return;say(t,rnd(DEF))}
+}
+function declareSheriff(my){
+  const me=G.players[0];
+  const m=alive().find(x=>me.known[x.id]===true);
+  if(!m)return;
+  log('chat','<b>'+me.name+'</b> (Вы): Я комиссар! Я проверил <b>'+m.name+'</b> — он мафия.');
+  me.claimed=true;G.claims.push({by:0,target:m.id});
+  G.players.forEach(q=>{if(!q.human&&!isMafia(q))q.susp[m.id]=(q.susp[m.id]||0)+(Math.random()<.75?4:1)});
+  const mf=alive().filter(p=>isMafia(p)&&!p.human);
+  if(mf.length)setTimeout(()=>{if(my===runId)say(rnd(mf),'Не верьте ему! Любой может назваться комиссаром.')},700);
+}
+async function vote(my){
+  const me=G.players[0];
+  G.phase='vote';
+  setBanner('🗳️','Голосование · День '+G.day,'Кого выгнать из города?');
+  log('sys','🗳️ Голосование');
+  let humanVote=null;
+  if(me.alive){
+    humanVote=await askSelect('🗳️ Ваш голос',p=>p.alive&&p!==me,{skip:'Воздержаться',hint:'Нажмите на карточку игрока, против которого голосуете.'});
+    if(my!==runId)return;
+  }
+  setPanel('Подсчёт голосов','Все голосуют...');
+  const al=alive(),votes={};
+  const mafs=al.filter(isMafia);
+  /* mafia team target */
+  let mt=null;
+  if(mafs.length){
+    const cand=al.filter(p=>!isMafia(p));let bs=-1e9;
+    cand.forEach(x=>{
+      let s=Math.random()*2;
+      al.filter(q=>!q.human&&!isMafia(q)).forEach(q=>s+=(q.susp[x.id]||0)*.5);
+      if(G.claims.some(c=>!c.fake&&c.by===x.id))s+=6;
+      if(s>bs){bs=s;mt=x}
+    });
+  }
+  const cast=[];
+  if(me.alive&&humanVote!=null)cast.push([me,G.players[humanVote]]);
+  al.filter(p=>!p.human).forEach(p=>{
+    let t;
+    if(isMafia(p))t=mt;
+    else if(p.role==='maniac')t=Math.random()<.5?mt:suspect(p);
+    else t=Math.random()<.1?null:suspect(p);
+    if(t&&t!==p)cast.push([p,t]);
+  });
+  for(const [v,t] of cast){
+    votes[t.id]=(votes[t.id]||0)+1;
+    log('chat','<b>'+v.name+'</b> → '+t.name);
+    await sleep(260);if(my!==runId)return;
+  }
+  const max=Math.max(0,...Object.values(votes));
+  const top=Object.keys(votes).filter(k=>votes[k]===max);
+  await sleep(500);if(my!==runId)return;
+  if(!cast.length||top.length!==1){
+    log('good','Голоса разделились — никого не выгнали.');
+  }else{
+    const t=G.players[+top[0]];t.alive=false;
+    log('death','⚖️ Город выгнал <b>'+t.name+'</b> ('+max+' гол.)'+(G.reveal?' — '+ROLES[t.role].emoji+' '+ROLES[t.role].name:'')+'.');
+    cast.filter(([,x])=>x===t).forEach(([v])=>{
+      G.players.forEach(q=>{
+        if(q.human||isMafia(q)||!q.alive)return;
+        q.susp[v.id]=(q.susp[v.id]||0)+(isMafia(t)?-1.5:1.5);
+      });
+    });
+  }
+  renderPlayers();
+  if(endIfWon())return;
+  await sleep(900);if(my!==runId)return;
+  night(my);
+}
+
+
+/* ---------- режим «С друзьями» (один телефон) ---------- */
+function newLocalGame(names,reveal){
+  const roles=buildRoles(names.length),cols=shuffle(COLORS);
+  const players=names.map((n,i)=>({id:i,name:n,job:'Игрок',role:roles[i],alive:true,human:false,susp:{},known:{},claimed:false,color:cols[i%cols.length]}));
+  G={players,day:0,phase:'start',reveal,lastHeal:null,lastBlock:null,claims:[],sheriffFound:null,select:null,over:false,winner:null,local:true};
+}
+function cover({icon,title,text='',btn,extra=''}){
+  return new Promise(res=>{
+    openModal(`<div class="big">${icon}</div><h2 style="text-align:center">${title}</h2>
+      <p style="color:var(--mut);text-align:center;line-height:1.5">${text}</p>${extra}
+      <div style="text-align:center;margin-top:18px"><button class="btn" id="cvb" style="font-size:17px;padding:14px 22px">${btn}</button></div>`,true);
+    $('#cvb').onclick=()=>{closeModal();res()};
+  });
+}
+function pickScreen(title,filter,sub=''){
+  return new Promise(res=>{
+    const c=G.players.filter(p=>p.alive&&filter(p));
+    openModal(`<h2 style="text-align:center">${title}</h2><p style="color:var(--mut);text-align:center">${sub}</p>
+      <div class="pickgrid">${c.map(p=>`<button data-id="${p.id}">${p.name}</button>`).join('')}</div>`,true);
+    document.querySelectorAll('.pickgrid button').forEach(b=>b.onclick=()=>{closeModal();res(+b.dataset.id)});
+    if(!c.length){closeModal();res(null)}
+  });
+}
+function showLocalDeal(){
+  runId++;const my=runId;
+  $('#restartBtn').style.display='';
+  const seen=G.players.map(()=>false);
+  const draw=()=>{
+    const left=seen.filter(x=>!x).length;
+    $('#app').innerHTML=`<div class="panel"><h3>🃏 Раздача ролей</h3>
+      <p>Каждый игрок по очереди нажимает на свою ячейку (с его именем), смотрит роль и передаёт телефон дальше. Роль видит только владелец ячейки!</p>
+      <b>${left?'Осталось открыть: '+left+' из '+seen.length:'Все роли розданы!'}</b></div>
+      <div class="cells">${G.players.map((p,i)=>`<button class="cell ${seen[i]?'seen':''}" data-i="${i}"><span class="q">${seen[i]?'✅':'❓'}</span>${p.name}</button>`).join('')}</div>
+      <button class="btn" id="st" style="width:100%;font-size:17px;padding:14px" ${left?'disabled':''}>🌙 Начать игру</button>`;
+    document.querySelectorAll('.cell').forEach(el=>el.onclick=()=>openCell(+el.dataset.i));
+    const st=$('#st');if(st)st.onclick=()=>{if(seen.every(Boolean))showLocalGame(my)};
+  };
+  const openCell=async i=>{
+    if(seen[i]||my!==runId)return;
+    const p=G.players[i],r=ROLES[p.role];
+    await cover({icon:'📱',title:'Телефон для: '+p.name,text:'Убедитесь, что экран видит только '+p.name+'. Остальные отворачиваются!',btn:'Это я — показать роль'});
+    const mates=isMafia(p)?'<p style="text-align:center"><b>Ваша команда:</b> '+(G.players.filter(q=>isMafia(q)&&q!==p).map(q=>q.name+' ('+ROLES[q.role].name+')').join(', ')||'вы один')+'</p>':'';
+    await cover({icon:r.emoji,title:r.name,text:r.desc,extra:mates,btn:'Скрыть роль'});
+    seen[i]=true;draw();
+  };
+  draw();
+}
+function showLocalGame(my){
+  $('#app').innerHTML=`<div class="main">
+    <div><div class="banner" id="banner"></div><div class="grid" id="grid"></div></div>
+    <div><div class="panel" id="panel"></div><div class="log" id="log"></div></div></div>`;
+  renderPlayers();
+  log('sys','Игра началась. Игроков: '+G.players.length+'. Мафия: '+G.players.filter(isMafia).length+'.');
+  nightLocal(my);
+}
+async function nightLocal(my){
+  if(my!==runId)return;
+  G.day++;G.phase='night';document.body.className='night';
+  setBanner('🌙','Ночь '+G.day,'Все закрывают глаза.');
+  log('sys','🌙 Ночь '+G.day);
+  renderPlayers();
+  setPanel('🌙 Идёт ночь','Телефон передаётся тем, кто просыпается. Следуйте подсказкам на экране.');
+  const acts={kill:null,search:null,heal:null,check:null,maniac:null,block:null};
+  const exists=r=>G.players.some(p=>p.role===r);
+  const holder=r=>G.players.find(p=>p.role===r&&p.alive);
+  const wake=async(icon,name,who)=>{
+    await cover({icon:'🌙',title:'Просыпается: '+name,text:'Все остальные закрывают глаза. Телефон берёт '+who+'. Нажмите, когда готовы.',btn:icon+' Я здесь — продолжить'});
+    if(my!==runId)return false;return true;
+  };
+  const blockedNote=r=>{const h=holder(r);return h&&acts.block===h.id};
+  const done=(text)=>cover({icon:'😴',title:'Готово',text:text||'Ваш выбор принят. Передайте телефон дальше или закройте глаза.',btn:'Скрыть экран'});
+
+  if(exists('mistress')){
+    if(!await wake('💃','Любовница','Любовница'))return;
+    const id=await pickScreen('💃 Кого отвлечь этой ночью?',p=>p.role!=='mistress'&&p.id!==G.lastBlock,G.lastBlock!=null?'Того же, что прошлой ночью, нельзя.':'');
+    if(holder('mistress'))acts.block=id;
+    await done();if(my!==runId)return;
+  }
+  if(exists('don')||exists('mafia')){
+    if(!await wake('🕶️','Мафия','вся мафия'))return;
+    const id=await pickScreen('🕶️ Выберите жертву мафии',p=>!isMafia(p),'Договоритесь жестами и выберите одного.');
+    if(G.players.some(p=>isMafia(p)&&p.alive))acts.kill=id;
+    await done();if(my!==runId)return;
+    if(exists('don')){
+      if(!await wake('🎩','Дон мафии','Дон'))return;
+      const t=await pickScreen('🎩 Кто комиссар? Выберите игрока для проверки',p=>!isMafia(p));
+      const d=holder('don');
+      if(d)acts.search=t;
+      const msg=blockedNote('don')?'💋 Вас отвлекла любовница. Проверка не удалась.':(t!=null?G.players[t].name+(G.players[t].role==='sheriff'?' — КОМИССАР! 🕵️':' — не комиссар.'):'—');
+      await cover({icon:'🎩',title:'Результат проверки',text:msg,btn:'Скрыть экран'});if(my!==runId)return;
+    }
+  }
+  if(exists('doctor')){
+    if(!await wake('🩺','Доктор','Доктор'))return;
+    const id=await pickScreen('🩺 Кого лечить?',p=>p.id!==G.lastHeal,G.lastHeal!=null?'Того же, что прошлой ночью, лечить нельзя.':'Себя тоже можно.');
+    if(holder('doctor'))acts.heal=id;
+    await done(blockedNote('doctor')?'💋 Вас отвлекла любовница. Лечение не сработало.':'');if(my!==runId)return;
+  }
+  if(exists('sheriff')){
+    if(!await wake('🕵️','Комиссар','Комиссар'))return;
+    const id=await pickScreen('🕵️ Кого проверить?',p=>p.role!=='sheriff');
+    if(holder('sheriff'))acts.check=id;
+    const t=id!=null?G.players[id]:null;
+    const msg=blockedNote('sheriff')?'💋 Вас отвлекла любовница. Проверка не удалась.':(t?t.name+' — '+((isMafia(t)&&t.role!=='don')?'МАФИЯ 🕶️':'не мафия.'):'—');
+    await cover({icon:'🕵️',title:'Результат проверки',text:msg,btn:'Скрыть экран'});if(my!==runId)return;
+  }
+  if(exists('maniac')){
+    if(!await wake('🔪','Маньяк','Маньяк'))return;
+    const id=await pickScreen('🔪 Кого убить?',p=>p.role!=='maniac');
+    if(holder('maniac'))acts.maniac=id;
+    await done();if(my!==runId)return;
+  }
+  await cover({icon:'☀️',title:'Город просыпается',text:'Все открывают глаза. Сейчас узнаем, что случилось ночью.',btn:'☀️ Наступило утро'});
+  if(my!==runId)return;
+  resolveNight(acts,my);
+}
+async function dayLocal(my){
+  if(my!==runId)return;
+  await waitButton('💬 Обсуждение','Обсудите вслух, кто мафия. Когда договорились — переходите к голосованию.','🗳️ К голосованию');
+  if(my!==runId)return;
+  setBanner('🗳️','Голосование · День '+G.day,'Проголосуйте вслух и выберите итог.');
+  let t=null;
+  while(true){
+    const id=await askSelect('🗳️ Кого выгоняем?',p=>p.alive,{skip:'Никого не выгоняем',hint:'После голосования вслух нажмите на карточку игрока, набравшего больше всех голосов.'});
+    if(my!==runId)return;
+    if(id==null)break;
+    const ok=await new Promise(res=>setPanel('Подтвердите','Выгнать игрока <b>'+G.players[id].name+'</b>?',[{label:'Да, выгнать',cls:'red',fn:()=>res(true)},{label:'Назад',cls:'ghost',fn:()=>res(false)}]));
+    if(ok){t=G.players[id];break}
+  }
+  if(t){t.alive=false;log('death','⚖️ Город выгнал <b>'+t.name+'</b>'+(G.reveal?' — '+ROLES[t.role].emoji+' '+ROLES[t.role].name:'')+'.')}
+  else log('good','Никого не выгнали.');
+  renderPlayers();
+  if(endIfWon())return;
+  await sleep(600);if(my!==runId)return;
+  nightLocal(my);
+}
+
+/* ---------- init ---------- */
+$('#rulesBtn').onclick=showRules;
+$('#restartBtn').onclick=showStart;
+showStart();
+</script>
+</body>
+</html>
